@@ -1,0 +1,2 @@
+# sample_yahoo_chiebukuro_api
+Yahoo知恵袋のAPIのサンプル
