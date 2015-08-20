@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <title>YahooAPIのサンプル</title>
+  <!-- jQueryを、Google Libraries APIで読み取る。最新版の1.8.3を読み取る。 -->
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <script src="jkl-parsexml.js"></script>
+</head>
+<body>
+
+  <p>キーワードが完全に一致したら、Yahoo知恵袋APIを使い、検索表示を出力。</p>
+  <p>「彼氏　浮気」 「友達　作り方」　「月　綺麗」 と入力する</p>
+  <input type="textbox" id="search" name="search" size="30" maxlength="20">
+  <!--<button id="button" >test</button>-->
+
+  <ol></ol>
+
+  <script>
+    $(function(){
+      console.log("スクリプト通った。");
+
+      //訪ねるボタンを消す
+
+
+      //画像クリックイベント
+      $("#button").bind("click",function(){
+        alert("d");
+
+      });
+      //canvasに画像などをいれていく。
+
+
+
+      //ここで、keywords.jsonファイルを読み取り、グローバル変数keywordsにいれる。
+      var keywords = {};
+      $.ajax({
+        url: "keywords.json",
+        dataType: 'json',
+        async: false,
+        data: { "data" : "data" },
+        success: function(json) {
+          console.log("jsonファイルのkeywords.jsonを取得");
+          //グローバル変数keywordsにいれる。
+          keywords = json;
+
+
+        }
+      });
+
+
+      //入力が完了したら、実行されるイベント。keyupイベントで、入力されたらする。
+      $("#search").keyup(function ()
+      {
+          //画像をGIFにして、拡大していく。
+
+
+          //入力されたキーワードを取得。
+          var str = $(this).val();
+          //入力されたら、その入力の値とキーワードが一致しているかを判定する。
+          for (var i = 0; i < keywords.length; i++)
+          {
+            //キーワードと同じだったら、
+            if(str == keywords[i])
+            {
+              //inputタグで入力できないようにする。
+              $("#search").attr("disabled", "disabled");
+              //yahooAPIを取得する。
+              getYahooAPI(str);
+            }
+          }
+      });
+
+
+      //あるキーワードでyahooAPIを取得する。
+      function getYahooAPI(keyword)
+      {
+        console.log(keyword + "という単語で、yahooAPIを取得");
+        //http://developer.yahoo.co.jp/webapi/chiebukuro/chiebukuro/v1/questionsearch.html参照
+        //ヤフーのアプリのID dj0zaiZpPXpZUkJnSkp3d3J6SiZzPWNvbnN1bWVyc2VjcmV0Jng9MDY-
+        var app_id = "dj0zaiZpPXpZUkJnSkp3d3J6SiZzPWNvbnN1bWVyc2VjcmV0Jng9MDY-";
+        var yahoo_app_url = "http://chiebukuro.yahooapis.jp/Chiebukuro/V1/questionSearch?";
+        var api_url = yahoo_app_url + "type=all&sort=+anscount&results=5&appid=" + app_id + "&query=" + encodeURI(keyword);
+        console.log(api_url);
+        //エンコードする。
+        var api_url = encodeURIComponent(api_url);
+
+        //APIを叩く
+        $.ajax({
+          type: "GET",
+          url: "ajax.php?url="+api_url,
+          dataType: "xml",
+          success: function(xml){
+            console.log("yahooAPIを取得成功！！");
+            //質問を取り出し、HTMLに表示させる。
+            $(xml).find("Question").each(disp);
+
+
+
+          }
+
+        });
+
+
+      }
+
+      //質問文を表示させる。
+      function disp()
+      {
+        var content = $(this).find("Content").text();
+        $("ol").append("<li>"+content+"</li>");
+
+
+
+
+      }
+
+
+
+
+
+
+
+
+    });
+
+  </script>
+
+
+
+
+</body>
+</html>
